@@ -1,0 +1,2 @@
+class AppAlreadyRunning(Exception):
+    pass

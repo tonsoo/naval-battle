@@ -1,2 +1,8 @@
+DateTime==5.5
 dearpygui==2.0.0
 pygame==2.6.1
+pytz==2025.1
+setuptools==76.0.0
+tk==0.1.0
+watchdog==6.0.0
+zope.interface==7.2

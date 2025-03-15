@@ -1,0 +1,2 @@
+class AppNotRunning(Exception):
+    pass

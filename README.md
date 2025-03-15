@@ -5,7 +5,7 @@ Jogo de batalha naval desenvolvido em python utilizando Pygame e Dear PyGui
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -r dependencies.txt
+pip install -r app/dependencies.txt
 ```
 
 ## Commits
