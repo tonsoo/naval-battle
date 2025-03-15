@@ -1,5 +1,5 @@
 # Batalha Naval
-Jogo de batalha naval em python 🤢
+Jogo de batalha naval desenvolvido em python utilizando Pygame e Dear PyGui
 
 ## Primeira vez rodando o projeto
 ```bash
