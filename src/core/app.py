@@ -1,6 +1,6 @@
 from errors.app.app_not_running import AppNotRunning
 from errors.app.app_already_running import AppAlreadyRunning
-from graphics.window import Window
+from core.window import Window
 
 class App:
     __window:Window = None
@@ -13,18 +13,20 @@ class App:
         
         
     
-    def run(self) -> bool:
+    def run(self) -> None:
         if self.is_running():
             raise AppAlreadyRunning()
         
         self.__window = Window()
         
-        
-    def stop(self) -> bool:
+    def stop(self) -> None:
         if not self.is_running():
             raise AppNotRunning()
 
         self.__window = None
+        
+    def refresh(self) -> None:
+        pass
     
     def is_running(self) -> bool:
         if self.__window is None:
@@ -39,3 +41,4 @@ class App:
     
     def set_title(self, title:str) -> None:
         self.__title = title
+        self.refresh()
