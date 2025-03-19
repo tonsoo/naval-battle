@@ -57,6 +57,8 @@ class Window(abc.ABC):
             self.__currentScreen.render(self.__window)
                     
             self.update(self.__currentScreen, self.__window)
+
+            pygame.display.update()
              
     def update(self, screen:Screen, window:pygame.Surface):
         pass

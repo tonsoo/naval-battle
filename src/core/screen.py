@@ -5,11 +5,13 @@ from turtle import _Screen
 from pygame import Surface
 
 from errors.screens.duplicate_screen_id import DuplicateScreenId
+from graphics.widgets.widget import Widget
 
 
 class Screen(abc.ABC):
     
     __id:string
+    __widgets:list[Widget]
     
     
 
@@ -26,6 +28,7 @@ class Screen(abc.ABC):
         # inicializa screen
         super().__init__()
         self.__id = identifier
+        self.__widgets = []
         
         Screen.__list.append(self)
         
@@ -34,10 +37,15 @@ class Screen(abc.ABC):
     def id(self) -> string:
         return self.__id
     
+
+    def addWidget(self, widget:Widget) -> None:
+        self.__widgets.append(widget)
     
-    @abc.abstractmethod
+    
+    
     def render(self, surface:Surface):
-        pass
+        for widget in self.__widgets:
+            widget.render(surface)
     
     
     
