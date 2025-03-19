@@ -21,4 +21,24 @@ class MainMenu(Screen):
     
 
     def update(self):
-        self.__container.x = self.__container.x + 1
+        self.handleMovement()
+
+
+
+    def move_container(self, x:float = 0, y:float = 0) -> None:
+        self.__container.x = self.__container.x + x
+        self.__container.y = self.__container.y + y
+
+
+    
+    def handleMovement(self):
+        keys=pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            self.move_container(x=-1)
+        elif keys[pygame.K_RIGHT]:
+            self.move_container(x=1)
+
+        if keys[pygame.K_UP]:
+            self.move_container(y=-1)
+        elif keys[pygame.K_DOWN]:
+            self.move_container(y=1)

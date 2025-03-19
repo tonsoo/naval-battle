@@ -56,9 +56,6 @@ class Window(abc.ABC):
                         self.__thread.join()
                     except:
                         pass
-                else:
-                    self.propagateEvent(event, self.__currentScreen)
-                    
             self.update(self.__currentScreen, self.__window)
 
             pygame.display.update()
@@ -68,8 +65,3 @@ class Window(abc.ABC):
 
         screen.render(window)
         screen.update()
-
-
-    
-    def propagateEvent(self, screen:Screen, event:pygame.event):
-        screen

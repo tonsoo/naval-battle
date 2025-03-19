@@ -44,7 +44,7 @@ class Screen(abc.ABC):
     
     
     
-    def render(self, surface:Surface):
+    def render(self, surface:Surface) -> None:
         for widget in self.__widgets:
             widget.render(surface)
 
