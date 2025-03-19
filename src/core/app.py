@@ -1,9 +1,9 @@
 from errors.app.app_not_running import AppNotRunning
 from errors.app.app_already_running import AppAlreadyRunning
+from graphics.window import Window
 
 class App:
-    __running:bool = False
-
+    __window:Window = None
     __title:str
     
     
@@ -17,16 +17,20 @@ class App:
         if self.is_running():
             raise AppAlreadyRunning()
         
-        self.__running = True
+        self.__window = Window()
+        
         
     def stop(self) -> bool:
         if not self.is_running():
             raise AppNotRunning()
 
-        self.__running = False
+        self.__window = None
     
     def is_running(self) -> bool:
-        return self.__running
+        if self.__window is None:
+            return False
+        
+        return self.__window.isWindowOpen()
     
     
     
