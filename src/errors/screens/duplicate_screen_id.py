@@ -1,0 +1,2 @@
+class DuplicateScreenId(Exception):
+    pass
