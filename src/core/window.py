@@ -56,15 +56,20 @@ class Window(abc.ABC):
                         self.__thread.join()
                     except:
                         pass
-                    
-            self.__window.fill(self.__backgroundColor)
-            
-            self.__currentScreen.render(self.__window)
-            self.__currentScreen.update()
+                else:
+                    self.propagateEvent(event, self.__currentScreen)
                     
             self.update(self.__currentScreen, self.__window)
 
             pygame.display.update()
              
     def update(self, screen:Screen, window:pygame.Surface):
-        pass
+        self.__window.fill(self.__backgroundColor)
+
+        screen.render(window)
+        screen.update()
+
+
+    
+    def propagateEvent(self, screen:Screen, event:pygame.event):
+        screen
