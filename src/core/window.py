@@ -10,9 +10,11 @@ class Window(abc.ABC):
     __window:pygame.Surface
     __thread:threading.Thread
     __currentScreen:Screen
+
+    __backgroundColor:pygame.Color
     
 
-    def __init__(self, width:float = 800, height:float = 600, startScreenIndex:int=1):
+    def __init__(self, width:float = 800, height:float = 600, startScreenIndex:int=1, backgroundColor=(0,0,0)):
         self.__thread = threading.Thread(target=lambda: self.run())
 
         if hasattr(Window, 'started') and Window.started:
@@ -25,6 +27,7 @@ class Window(abc.ABC):
             
         clampedValue = min(screenList.__len__() - 1, max(0, startScreenIndex))
         self.__currentScreen = screenList[clampedValue]
+        self.__backgroundColor = backgroundColor
         
         self.__window = pygame.display.set_mode((width, height))
         
@@ -54,7 +57,10 @@ class Window(abc.ABC):
                     except:
                         pass
                     
+            self.__window.fill(self.__backgroundColor)
+            
             self.__currentScreen.render(self.__window)
+            self.__currentScreen.update()
                     
             self.update(self.__currentScreen, self.__window)
 

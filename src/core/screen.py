@@ -1,5 +1,6 @@
 import abc
 import string
+from tkinter import NO
 from turtle import _Screen
 
 from pygame import Surface
@@ -46,6 +47,12 @@ class Screen(abc.ABC):
     def render(self, surface:Surface):
         for widget in self.__widgets:
             widget.render(surface)
+
+
+
+    @abc.abstractmethod
+    def update(self) -> None:
+        pass
     
     
     
