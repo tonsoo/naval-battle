@@ -1,4 +1,4 @@
-from src.core.app import App
+from core.app import App
 
 if __name__ == '__main__':
     app = App(title='Naval Battle 2')

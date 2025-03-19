@@ -1,8 +1,9 @@
-from src.errors.app.app_not_running import AppNotRunning
-from src.errors.app.app_already_running import AppAlreadyRunning
+from errors.app.app_not_running import AppNotRunning
+from errors.app.app_already_running import AppAlreadyRunning
 
 class App:
     __running:bool = False
+
     __title:str
     
     
