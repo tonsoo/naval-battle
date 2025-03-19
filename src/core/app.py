@@ -1,6 +1,7 @@
 from errors.app.app_not_running import AppNotRunning
 from errors.app.app_already_running import AppAlreadyRunning
 from core.window import Window
+from windows.app_window import AppWindow
 
 class App:
     __window:Window = None
@@ -17,7 +18,7 @@ class App:
         if self.is_running():
             raise AppAlreadyRunning()
         
-        self.__window = Window()
+        self.__window = AppWindow()
         
     def stop(self) -> None:
         if not self.is_running():
