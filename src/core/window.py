@@ -1,20 +1,30 @@
 import abc
-from turtle import Screen
 import pygame
 import threading
+
+from core.screen import Screen
+from errors.window.no_screens_registered import NoScreensRegistered
 
 class Window(abc.ABC):
     __windowOpen:bool = False
     __window:pygame.Surface
     __thread:threading.Thread
+    __currentScreen:Screen
     
 
-    def __init__(self, width:float = 800, height:float = 600):
+    def __init__(self, width:float = 800, height:float = 600, startScreenIndex:int=1):
         self.__thread = threading.Thread(target=lambda: self.run())
 
         if hasattr(Window, 'started') and Window.started:
             Window.started = True
             pygame.init()
+            
+        screenList = self.getScreens()
+        if screenList.__len__() < 1:
+            raise NoScreensRegistered()
+            
+        clampedValue = min(screenList.__len__() - 1, max(0, startScreenIndex))
+        self.__currentScreen = screenList[clampedValue]
         
         self.__window = pygame.display.set_mode((width, height))
         
@@ -43,8 +53,10 @@ class Window(abc.ABC):
                         self.__thread.join()
                     except:
                         pass
-
-            self.update()
+                    
+            self.__currentScreen.render(self.__window)
+                    
+            self.update(self.__currentScreen, self.__window)
              
-    def update(self):
+    def update(self, screen:Screen, window:pygame.Surface):
         pass

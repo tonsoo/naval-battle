@@ -9,5 +9,5 @@ class MainMenu(Screen):
         
         
         
-    def build(self):
-        return super().build()
+    def render(self, surface):
+        return super().render(surface)

@@ -1,6 +1,6 @@
-from turtle import Screen
+from core.screen import Screen
 from core.window import Window
-from screens.menu import main_menu
+from screens.menu.main_menu import MainMenu
 
 
 class AppWindow(Window):
@@ -11,4 +11,4 @@ class AppWindow(Window):
     
     
     def getScreens(self) -> list[Screen]:
-        return [main_menu]
+        return [MainMenu()]
