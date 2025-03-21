@@ -3,6 +3,7 @@ import pygame
 import threading
 
 from core.screen import Screen
+from core.time import Time
 from errors.window.no_screens_registered import NoScreensRegistered
 
 class Window(abc.ABC):
@@ -48,6 +49,8 @@ class Window(abc.ABC):
     
     def run(self):
         while self.isWindowOpen():
+            Time.update()
+            
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.__windowOpen = False
