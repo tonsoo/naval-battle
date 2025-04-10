@@ -10,6 +10,7 @@ class Camera(Widget):
 
     _children:list[Widget]
     _watch:Widget
+    _watching:bool
     _offsetX:float
     _offsetY:float
     _moveX:float
@@ -22,6 +23,7 @@ class Camera(Widget):
 
         self._window = window
         self._watch = None
+        self._watching = False
 
         self._children = []
 
@@ -53,8 +55,28 @@ class Camera(Widget):
         child.y = tmpY
 
     def tick(self) -> None:
-        self.x = self.x + self.calculateMovement(self._watch.x, self.x, self._offsetX, self._moveX) * Time.deltaTime()
-        self.y = self.y + self.calculateMovement(self._watch.y, self.y, self._offsetY, self._moveY) * Time.deltaTime()
+        self.x = self.x + self.calculateXMovement() * Time.deltaTime()
+        self.y = self.y + self.calculateYMovement() * Time.deltaTime()
+
+
+
+    def isWatching(self) -> bool:
+        return self._watch == None or self._watching == False
+
+    def isNotWatching(self) -> bool:
+        return not self.isWatching()
+
+
+
+    def calculateXMovement(self) -> float:
+        if self.isNotWatching():
+            return 0
+        return self.calculateMovement(self._watch.x, self.x, self._offsetX, self._moveX)
+
+    def calculateYMovement(self) -> float:
+        if self.isNotWatching():
+            return 0
+        return self.calculateMovement(self._watch.y, self.y, self._offsetY, self._moveY)
 
     def calculateMovement(self, pos1:float, pos2:float, minOffset:float, speed:float) -> float:
         composite = pos1 - pos2
@@ -64,9 +86,3 @@ class Camera(Widget):
         elif composite < -minOffset:
             move = (abs(composite) - abs(minOffset)) * -1
         return move * speed
-
-    def isOutsideX(self) -> bool:
-        return self._watch.x < self.x or self._watch.x - self._watch.width > self.x + self._window.getWidth()
-    
-    def isOutsideY(self) -> bool:
-        return self._watch.y < self.y or self._watch.y - self._watch.height > self.y + self._window.getHeight()
