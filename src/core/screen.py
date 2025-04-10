@@ -1,6 +1,5 @@
 import abc
 import string
-from tkinter import NO
 from turtle import _Screen
 
 from pygame import Surface
@@ -13,11 +12,11 @@ class Screen(abc.ABC):
     
     __id:string
     __widgets:list[Widget]
-    
+    _window = None
     
 
     @abc.abstractmethod
-    def __init__(self, identifier:string=None):
+    def __init__(self, window, identifier:string=None):
 
         # verifica se tela com id ja existe
         if not hasattr(Screen, '__list') or Screen.__list is not list:
@@ -30,6 +29,8 @@ class Screen(abc.ABC):
         super().__init__()
         self.__id = identifier
         self.__widgets = []
+
+        self._window = window
         
         Screen.__list.append(self)
         
@@ -47,6 +48,11 @@ class Screen(abc.ABC):
     def render(self, surface:Surface) -> None:
         for widget in self.__widgets:
             widget.render(surface)
+
+
+
+    def getWindow(self):
+        return self._window
 
 
 

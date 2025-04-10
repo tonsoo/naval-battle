@@ -13,6 +13,9 @@ class Window(abc.ABC):
     __currentScreen:Screen
 
     __backgroundColor:pygame.Color
+
+    __width:float
+    __height:float
     
 
     def __init__(self, width:float = 800, height:float = 600, startScreenIndex:int=1, backgroundColor=(0,0,0)):
@@ -30,7 +33,9 @@ class Window(abc.ABC):
         self.__currentScreen = screenList[clampedValue]
         self.__backgroundColor = backgroundColor
         
-        self.__window = pygame.display.set_mode((width, height))
+        self.__width = width
+        self.__height = height
+        self.__window = pygame.display.set_mode((self.__width, self.__height))
         
         self.__windowOpen = True
         
@@ -40,6 +45,14 @@ class Window(abc.ABC):
 
     def getScreens(self) -> list[Screen]:
         raise NotImplementedError()
+    
+
+    
+    def getWidth(self) -> float:
+        return self.__width
+    
+    def getHeight(self) -> float:
+        return self.__height
     
 
     

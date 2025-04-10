@@ -11,7 +11,7 @@ class Container(Widget):
     
 
     def __init__(self, x=0, y=0, width=0, height=0, color:Color = (0,0,0)):
-        super().__init__(x, y, width, height, color)
+        super().__init__(x, y, width, height)
         
         self.color = color
         
