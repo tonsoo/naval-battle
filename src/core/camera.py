@@ -1,9 +1,7 @@
-from platform import win32_edition
 from pygame import Surface
 from core.time import Time
 from core.window import Window
 from graphics.widgets.widget import Widget
-from models.generics.rect import Rect
 
 
 class Camera(Widget):
