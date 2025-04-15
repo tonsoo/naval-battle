@@ -4,41 +4,37 @@ import threading
 
 from core.screen import Screen
 from core.time import Time
+from core.window_data import WindowData
 from errors.window.no_screens_registered import NoScreensRegistered
 
 class Window(abc.ABC):
     __windowOpen:bool = False
     __window:pygame.Surface
     __thread:threading.Thread
-    __currentScreen:Screen
+    __currentScreen:Screen = None
 
-    __backgroundColor:pygame.Color
 
-    __width:float
-    __height:float
+    __windowData:WindowData = None
     
 
-    def __init__(self, width:float = 800, height:float = 600, startScreenIndex:int=1, backgroundColor=(0,0,0)):
+    def __init__(self, width:float = 800, height:float = 600, startIndex:int = 0, backgroundColor=(0,0,0)):
         self.__thread = threading.Thread(target=lambda: self.run())
 
         if hasattr(Window, 'started') and Window.started:
             Window.started = True
             pygame.init()
-            
-        screenList = self.getScreens()
-        if screenList.__len__() < 1:
-            raise NoScreensRegistered()
-            
-        clampedValue = min(screenList.__len__() - 1, max(0, startScreenIndex))
-        self.__currentScreen = screenList[clampedValue]
-        self.__backgroundColor = backgroundColor
         
-        self.__width = width
-        self.__height = height
-        self.__window = pygame.display.set_mode((self.__width, self.__height))
+        self.__windowData = WindowData(
+            width=width,
+            height=height,
+            background=backgroundColor
+        )
+        self.__window = pygame.display.set_mode((self.getWidth(), self.getHeight()))
         
         self.__windowOpen = True
         
+        self.changeScreen(startIndex)
+
         self.__thread.run()
         
 
@@ -48,16 +44,29 @@ class Window(abc.ABC):
     
 
     
+    def getData(self) -> WindowData:
+        return self.__windowData
+    
     def getWidth(self) -> float:
-        return self.__width
+        return self.getData().getWidth()
     
     def getHeight(self) -> float:
-        return self.__height
+        return self.getData().getHeight()
     
 
     
     def isWindowOpen(self) -> bool:
         return self.__windowOpen
+    
+
+    def changeScreen(self, index:Screen) -> None:
+        screenList = self.getScreens()
+        if screenList.__len__() < 1:
+            raise NoScreensRegistered()
+            
+        clampedValue = min(screenList.__len__() - 1, max(0, index))
+        self.__currentScreen = screenList[clampedValue]
+        self.__currentScreen.build(self.getData())
     
     
     def run(self):
@@ -77,7 +86,7 @@ class Window(abc.ABC):
             pygame.display.update()
              
     def update(self, screen:Screen, window:pygame.Surface):
-        self.__window.fill(self.__backgroundColor)
+        self.__window.fill(self.__windowData.getBackground())
 
         screen.render(window)
         screen.update()

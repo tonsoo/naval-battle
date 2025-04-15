@@ -4,6 +4,7 @@ from turtle import _Screen
 
 from pygame import Surface
 
+from core.window_data import WindowData
 from errors.screens.duplicate_screen_id import DuplicateScreenId
 from graphics.widgets.widget import Widget
 
@@ -12,11 +13,10 @@ class Screen(abc.ABC):
     
     __id:string
     __widgets:list[Widget]
-    _window = None
+    _windowData:WindowData = None
     
 
-    @abc.abstractmethod
-    def __init__(self, window, identifier:string=None):
+    def __init__(self, identifier:string=None):
 
         # verifica se tela com id ja existe
         if not hasattr(Screen, '__list') or Screen.__list is not list:
@@ -29,11 +29,13 @@ class Screen(abc.ABC):
         super().__init__()
         self.__id = identifier
         self.__widgets = []
-
-        self._window = window
         
         Screen.__list.append(self)
         
+
+    @abc.abstractmethod
+    def build(self, windowData:WindowData) -> None:
+        self._windowData = windowData
         
         
     def id(self) -> string:
@@ -51,8 +53,8 @@ class Screen(abc.ABC):
 
 
 
-    def getWindow(self):
-        return self._window
+    def getWindowData(self):
+        return self._windowData
 
 
 

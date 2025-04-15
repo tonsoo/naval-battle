@@ -1,6 +1,7 @@
 from pygame import Surface
 from core.time import Time
 from core.window import Window
+from core.window_data import WindowData
 from graphics.widgets.widget import Widget
 
 
@@ -13,13 +14,13 @@ class Camera(Widget):
     _offsetY:float
     _moveX:float
     _moveY:float
-    _window:Window
+    _windowData:WindowData
 
     
-    def __init__(self, window:Window, x = 0, y = 0, offsetX = 25, offsetY = 15, moveX = 3, moveY = 3):
+    def __init__(self, windowData:WindowData, x = 0, y = 0, offsetX = 25, offsetY = 15, moveX = 3, moveY = 3):
         super().__init__(x, y)
 
-        self._window = window
+        self._windowData = windowData
         self._watch = None
         self._watching = False
 
@@ -44,8 +45,8 @@ class Camera(Widget):
 
     def renderChild(self, surface:Surface, child:Widget,) -> None:
         [tmpX, tmpY] = [child.x, child.y]
-        child.x = child.x - child.width / 2 - self.x + self._window.getWidth() / 2
-        child.y = child.y - child.height / 2 - self.y + self._window.getHeight() / 2
+        child.x = child.x - child.width / 2 - self.x + self._windowData.getWidth() / 2
+        child.y = child.y - child.height / 2 - self.y + self._windowData.getHeight() / 2
 
         child.render(surface)
 

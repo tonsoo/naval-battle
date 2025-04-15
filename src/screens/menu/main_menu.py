@@ -1,33 +1,42 @@
-import string
-
-from pygame import Color
-
-from core.camera import Camera
 from core.screen import Screen
-from entities.player import Player
-from graphics.widgets.container import Container
+from core.window_data import WindowData
+from graphics.widgets.container.container import Container
+from graphics.widgets.container.container_traits import ContainerTraits
+from graphics.widgets.padding.edge_insets import EdgeInsets
+from graphics.widgets.padding.padding import Padding
 
 
 class MainMenu(Screen):
 
-
-    _player:Player
-    _camera:Camera
-
     
-    def __init__(self, window, identifier:string = None):
-        super().__init__(window, identifier)
+    def build(self, windowData:WindowData):
+        super().__init__(windowData)
+        
+        self.addWidget(
+            Container(
+                width=windowData.getWidth(),
+                height=windowData.getHeight(),
+                color=(212, 212, 212),
+                children=[
+                    Padding(
+                        width=ContainerTraits.WIDTH_FULL,
+                        padding=EdgeInsets.symetrical(
+                            vertical=20,
+                            horizontal=10
+                        ),
+                        children=[
+                            Container(
+                                width=ContainerTraits.WIDTH_FULL,
+                                height=50,
+                                color=(122, 12, 10)
+                            )
+                        ]
+                    )
+                ]
+            )
+        )
 
-        self._camera = Camera(self._window, 0, 0)
-        self._player = Player(speed=120, sprintSpeed=200)
 
-        self._camera.watch(self._player)
-        self._camera.addChild(Container(0, 0, 20, 20, Color(255, 0, 0)))
-        self._camera.addChild(self._player)
-        self.addWidget(self._camera)
-
-    
 
     def update(self):
-        self._player.tick()
-        self._camera.tick()
+        pass
