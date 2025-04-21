@@ -12,4 +12,4 @@ class AppWindow(Window):
     
     
     def getScreens(self) -> list[Screen]:
-        return [MainMenu(), Game()]
+        return [Game(), MainMenu()]

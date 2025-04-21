@@ -14,3 +14,6 @@ Para realizar commits ao projeto é preciso sempre atualizar os pacotes utilizad
 ```bash
 pip freeze > dependencies.txt
 ```
+
+## Debug
+Para intuitos de debug é recomendado a utilização da função `dprint` que possui declaração quase identica ao `print`, porem so sera executado no modo dev.

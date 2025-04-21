@@ -1,5 +1,7 @@
 # esconder mensagem do pygame
 import os
+
+from dev.dev_mode import DevMode
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 import argparse
@@ -14,6 +16,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser("python src/main.py")
     parser.add_argument("--mode", help="Modo do app", choices=["dev", "build"], default="dev")
     args = parser.parse_args()
+
+    if args.mode == 'dev':
+        DevMode.init()
     
     # rodar jogo
     app = App(title='Naval Battle 2')

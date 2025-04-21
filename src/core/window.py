@@ -5,6 +5,7 @@ import threading
 from core.screen import Screen
 from core.time import Time
 from core.window_data import WindowData
+from dev.dev_mode import DevMode, dprint
 from errors.window.no_screens_registered import NoScreensRegistered
 
 class Window(abc.ABC):
@@ -78,7 +79,9 @@ class Window(abc.ABC):
                     self.__windowOpen = False
                     
                     try:
+                        DevMode.stop()
                         self.__thread.join()
+                        self.__windowOpen = False
                     except:
                         pass
             self.update(self.__currentScreen, self.__window)
