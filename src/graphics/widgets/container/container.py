@@ -21,10 +21,29 @@ class Container(Widget):
         
         
     def render(self, surface):
+        self_rect = Rect(
+            x=self.x, y=self.y,
+            width=self.width, height=self.height,
+        )
+        if self.width == ContainerTraits.WIDTH_AUTO or self.height == ContainerTraits.HEIGHT_AUTO:
+            for child in self.__children:
+                rect = Rect(
+                    x=child.x, y=child.y,
+                    width=child.width, height=child.height
+                )
+
+                child_rect = self._calculate_child_rect(child)
+                
+                if child_rect.width > self_rect.width:
+                    self_rect.width = child_rect.width
+
+                if child_rect.height > self_rect.height:
+                    self_rect.height = child_rect.height
+
         pygame.draw.rect(
             surface,
             color=self.color,
-            rect=[self.x, self.y, self.width, self.height]
+            rect=[self_rect.x, self_rect.y, self_rect.width, self_rect.height]
         )
 
         for child in self.__children:
@@ -32,23 +51,39 @@ class Container(Widget):
                 x=child.x, y=child.y,
                 width=child.width, height=child.height
             )
-
-            child.x = child.x + self.x
-            child.y = child.y + self.y
-
-            if child.width == ContainerTraits.WIDTH_FULL:
-                child.width = self.width
-
-            if child.height == ContainerTraits.HEIGHT_FULL:
-                child.height = self.height
             
-            self.renderIndividualChild(surface=surface, child=child)
+            child_rect = self._calculate_child_rect(child)
+            render_child = self._mutate_child_rect(child, child_rect)
             
-            child.x = rect.x
-            child.y = rect.y
+            self.renderIndividualChild(surface=surface, child=render_child)
+            
+            self._mutate_child_rect(child, rect)
 
-            child.width = rect.width
-            child.height = rect.height
+    def _mutate_child_rect(self, child:Widget, rect:Rect) -> Widget:
+        child.x = rect.x
+        child.y = rect.y
+
+        child.width = rect.width
+        child.height = rect.height
+
+        return child
+
+    def _calculate_child_rect(self, child:Widget) -> Rect:
+        rect = Rect(
+            x=child.x, y=child.y,
+            width=child.width, height=child.height
+        )
+
+        rect.x = child.x + self.x
+        rect.y = child.y + self.y
+
+        if child.width == ContainerTraits.WIDTH_FULL:
+            rect.width = self.width
+
+        if child.height == ContainerTraits.HEIGHT_FULL:
+            rect.height = self.height
+
+        return rect
 
     def renderIndividualChild(self, surface:Surface, child:Widget) -> None:
         child.render(surface)

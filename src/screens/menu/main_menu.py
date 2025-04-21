@@ -18,17 +18,24 @@ class MainMenu(Screen):
                 height=windowData.getHeight(),
                 color=(212, 212, 212),
                 children=[
-                    Padding(
+                    Container(
                         width=ContainerTraits.WIDTH_FULL,
-                        padding=EdgeInsets.symetrical(
-                            vertical=20,
-                            horizontal=10
-                        ),
+                        height=ContainerTraits.HEIGHT_AUTO,
+                        color=(223, 123, 175),
                         children=[
-                            Container(
+                            Padding(
                                 width=ContainerTraits.WIDTH_FULL,
-                                height=50,
-                                color=(122, 12, 10)
+                                padding=EdgeInsets.symetrical(
+                                    vertical=20,
+                                    horizontal=10
+                                ),
+                                children=[
+                                    Container(
+                                        width=ContainerTraits.WIDTH_FULL,
+                                        height=50,
+                                        color=(122, 12, 10)
+                                    )
+                                ]
                             )
                         ]
                     )

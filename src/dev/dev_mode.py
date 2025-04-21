@@ -58,11 +58,15 @@ class DevMode(Thread):
                 if event.type == pygame.KEYDOWN:
                     if event.unicode == 'R':
                         DevMode.restart()
+            sleep(0.3)
 
     def join(self, timeout = None):
         DevMode.__initialized = False
         return super().join(timeout)
+    
+    def isInitialized():
+        return DevMode.__initialized
 
 def dprint(*values: object, sep: str | None = " ", end: str | None = "\n"):
-    if DevMode.__initialized:
+    if DevMode.isInitialized():
         print(values, sep=sep, end=end)
