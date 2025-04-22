@@ -13,10 +13,14 @@ class Player(Entity):
         'down': [pygame.K_DOWN, pygame.K_s],
         'sprint': [pygame.K_LSHIFT, pygame.K_RSHIFT],
     }
+    _color = (89, 67, 234)
+    _sprintColor = (169, 67, 187)
+    _renderColor:pygame.Color
     
     def __init__(self, x=0, y=0, width=15, height=25, speed=100, sprintSpeed:float=150):
         super().__init__(x, y, width, height, speed)
         self.__sprintSpeed = sprintSpeed
+        self._renderColor = self._color
         
         
     
@@ -26,7 +30,7 @@ class Player(Entity):
     def render(self, surface):
         pygame.draw.rect(
             surface,
-            color=(89, 67, 234),
+            color=self._renderColor,
             rect=[self.x, self.y, self.width, self.height]
         )
         
@@ -50,6 +54,9 @@ class Player(Entity):
             
         if self._hasKeyPressed(self.__keyMap['sprint'], keys):
             speed = self.__sprintSpeed
+            self._renderColor = self._sprintColor
+        else:
+            self._renderColor = self._color
             
         self.x = self.x + x * speed * Time.deltaTime()
         self.y = self.y + y * speed * Time.deltaTime()

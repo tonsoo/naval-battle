@@ -1,5 +1,6 @@
 import pygame
 from pygame.freetype import Font
+from graphics.widgets.text.fonts import Fonts
 from graphics.widgets.widget import Widget
 
 
@@ -24,7 +25,7 @@ class Text(Widget):
     
     def validate_font(self):
         if self._font == None:
-            self._font = Font('Arial', 24)
+            self._font = Fonts.DM_SANS.weights.w400.load()
 
     def render(self, surface):
         self.validate_font()
