@@ -1,6 +1,8 @@
 from pathlib import Path
 import pygame
 
+from dev.dev_mode import dprint
+
 
 class FontWeight:
     def __init__(self, filename: str, font: 'Font'):
@@ -11,6 +13,7 @@ class FontWeight:
         full_path = Path(self.font.path) / self.filename
         if not full_path.exists():
             raise FileNotFoundError(f"Font file not found: {full_path}")
+        
         return pygame.font.Font(str(full_path), size)
 
 

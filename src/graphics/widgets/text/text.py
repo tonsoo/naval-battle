@@ -29,4 +29,6 @@ class Text(Widget):
 
     def render(self, surface):
         self.validate_font()
-        self._font.render_to(surface, (self.x, self.y), self._text, self._color)
+        
+        text_surface = self._font.render(self._text, True, self._color)
+        surface.blit(text_surface, (self.x, self.y))

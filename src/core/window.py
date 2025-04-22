@@ -1,4 +1,5 @@
 import abc
+from ctypes.wintypes import PULARGE_INTEGER
 import pygame
 import threading
 
@@ -13,30 +14,24 @@ class Window(abc.ABC):
     __window:pygame.Surface
     __thread:threading.Thread
     __currentScreen:Screen = None
+    __currentScreenIsBuilt:bool = False
 
 
     __windowData:WindowData = None
     
 
     def __init__(self, width:float = 800, height:float = 600, startIndex:int = 0, backgroundColor=(0,0,0)):
-        self.__thread = threading.Thread(target=lambda: self.run())
-
-        if hasattr(Window, 'started') and Window.started:
-            Window.started = True
-            pygame.init()
+        self.__thread = threading.Thread(target=self.run)
         
         self.__windowData = WindowData(
             width=width,
             height=height,
             background=backgroundColor
         )
-        self.__window = pygame.display.set_mode((self.getWidth(), self.getHeight()))
-        
-        self.__windowOpen = True
         
         self.changeScreen(startIndex)
 
-        self.__thread.run()
+        self.__thread.start()
         
 
 
@@ -67,12 +62,38 @@ class Window(abc.ABC):
             
         clampedValue = min(screenList.__len__() - 1, max(0, index))
         self.__currentScreen = screenList[clampedValue]
-        self.__currentScreen.build(self.getData())
+        self.__currentScreenIsBuilt = False
     
+    
+    def openWindow(self):
+        driver = pygame.display.get_driver()
+        flags = 0
+        if driver == "opengl":
+            flags = pygame.OPENGL
+        elif driver == "directx":
+            flags = pygame.SWSURFACE
+        
+        self.__window = pygame.display.set_mode((self.getWidth(), self.getHeight()), flags)
+        
+        self.__windowOpen = True
+        
     
     def run(self):
+        pygame.init()
+        pygame.font.init()
+        
+        self.openWindow()
+        
         while self.isWindowOpen():
             Time.update()
+            
+            if not pygame.display.get_init() or not pygame.font.get_init():
+                dprint('skipping :p')
+                continue
+            
+            if not self.__currentScreenIsBuilt:
+                self.__currentScreen.build(self.getData())
+                self.__currentScreenIsBuilt = True
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
