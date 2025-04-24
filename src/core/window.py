@@ -65,12 +65,16 @@ class Window(abc.ABC):
     
     def reloadScreen(self) -> None:
         screen = None
+        current_id = self.__currentScreen.id()
+        print(f'Searchin screen with id: {current_id}')
         
         screenList = self.getScreens()
         i = 0
         for _ in screenList:
-            if _.id() == self.__currentScreen.id():
+            print(f'\t{i + 1}: {_.id()}')
+            if _.id() == current_id:
                 screen = _
+                print('Found screen')
                 break
             i = i + 1
             

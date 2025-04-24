@@ -8,6 +8,8 @@ from entities.player import Player
 from graphics.widgets.container.container import Container
 from graphics.widgets.image.image import Image
 from objects.collidable import Collidable
+from objects.game.board import Board
+from objects.game.tile import Tile
 
 
 class Game(Screen):
@@ -21,39 +23,13 @@ class Game(Screen):
     def build(self, windowData:WindowData):
         super().build(windowData)
         
-        size = (5, 5)
-        tile_pos = (100, 100)
-        tile_dimension = (20, 20)
-        tile_spacing = (5, 5)
-        board = []
-        
-        for _x in range(0, size[0]):
-            for _y in range(0, size[1]):
-                _w = tile_dimension[0]
-                _h = tile_dimension[1]
-                _sX = tile_spacing[0]
-                _sY = tile_spacing[1]
-                
-                board.append(
-                    Container(
-                        x=tile_pos[0] + _x * _w + _x * _sX,
-                        y=tile_pos[1] + _y * _h + _y * _sY,
-                        width=_w,
-                        height=_h,
-                        color=(92, 89, 89)
-                    ).onClick(
-                        lambda tile: self.change_tile_color(
-                            tile, (43, 40, 40)
-                        )
-                    )
-                )
-        
         self.addWidget(
-            Container(
+            Board(
+                size=(11, 9),
+                padding=(10, 20),
+                spacing=(8, 10),
                 width=windowData.getWidth(),
                 height=windowData.getHeight(),
-                color=(105, 163, 245),
-                children=board
             )
         )
         
@@ -81,10 +57,8 @@ class Game(Screen):
         # self._camera.addChild(self._player)
         # self.addWidget(self._camera)
 
-    
-    def change_tile_color(self, tile, color):
-        print('changing color')
-        tile.color = color
+    def _tile_index(self, width, x, y):
+        return x + y * width
 
     def update(self):
         pass

@@ -28,7 +28,7 @@ class Screen(abc.ABC):
             raise DuplicateScreenId()
         
         if identifier == None:
-            identifier = self.__class__
+            identifier = str(self.__class__)
         
         # inicializa screen
         super().__init__()

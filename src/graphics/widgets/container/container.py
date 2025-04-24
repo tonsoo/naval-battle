@@ -35,6 +35,11 @@ class Container(Widget):
             
             self._mutate_child_rect(child, rect)
     
+    def empty_children(self):
+        self.__children = []
+        
+    def add_child(self, child):
+        self.__children.append(child)
         
     def render(self, surface):
         self_rect = Rect(

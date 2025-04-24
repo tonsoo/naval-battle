@@ -1,6 +1,7 @@
 from csv import Error
 import os
 import sys
+import types
 import pygame
 from termcolor import colored
 import importlib
@@ -47,15 +48,39 @@ class DevMode:
         os.execl(*cmd)
         
     def reload():
-        print('Reloading...')
-        importlib.reload(screens)
-        importlib.reload(core)
-        importlib.reload(entities)
-        importlib.reload(errors)
-        importlib.reload(graphics)
-        importlib.reload(models)
-        importlib.reload(objects)
-        importlib.reload(windows)
+        dprint('Reloading...')
+        modules = [
+            screens,
+            core,
+            entities,
+            errors,
+            graphics,
+            models,
+            objects,
+            windows
+        ]
+
+        visited = set()
+
+        def _reload(mod):
+            if mod in visited:
+                return
+            
+            visited.add(mod)
+
+            for name in dir(mod):
+                attr = getattr(mod, name)
+                if isinstance(attr, types.ModuleType):
+                    if attr.__name__.startswith(mod.__name__):
+                        _reload(attr)
+
+            importlib.reload(mod)
+                
+        for mod in modules:
+            _reload(mod)
+            
+        print(f'Reloaded {visited.__len__()} modules')
+        
         DevMode.__app.refresh()
         
 
@@ -75,4 +100,4 @@ class DevMode:
 
 def dprint(*values: object, sep: str | None = " ", end: str | None = "\n"):
     if DevMode.isInitialized():
-        print(values, sep=sep, end=end)
+        print(*values, sep=sep, end=end)
