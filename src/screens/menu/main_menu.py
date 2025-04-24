@@ -23,6 +23,11 @@ class MainMenu(Screen):
                 height=windowData.getHeight(),
                 color=(105, 163, 245),
                 children=[
+                    text.Text(
+                        'Batalha Naval',
+                        x=250,
+                        y=150,
+                    ).font_size(50),
                     Container(
                         width=200,
                         height=50,
