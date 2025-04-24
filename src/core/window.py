@@ -66,7 +66,6 @@ class Window(abc.ABC):
     def reloadScreen(self) -> None:
         screen = None
         
-        
         screenList = self.getScreens()
         i = 0
         for _ in screenList:

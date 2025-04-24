@@ -5,6 +5,13 @@ import pygame
 from termcolor import colored
 import importlib
 import screens
+import core
+import entities
+import errors
+import graphics
+import models
+import objects
+import windows
 
 
 class DevMode:
@@ -42,6 +49,13 @@ class DevMode:
     def reload():
         print('Reloading...')
         importlib.reload(screens)
+        importlib.reload(core)
+        importlib.reload(entities)
+        importlib.reload(errors)
+        importlib.reload(graphics)
+        importlib.reload(models)
+        importlib.reload(objects)
+        importlib.reload(windows)
         DevMode.__app.refresh()
         
 
