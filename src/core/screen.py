@@ -14,6 +14,7 @@ class Screen(abc.ABC):
     
     __id:string
     __widgets:list[Widget]
+    _isBuilt = False
     _windowData:WindowData = None
     
 
@@ -40,6 +41,7 @@ class Screen(abc.ABC):
     @abc.abstractmethod
     def build(self, windowData:WindowData) -> None:
         self._windowData = windowData
+        self._isBuilt = True
         
         
     def id(self) -> string:
@@ -55,6 +57,9 @@ class Screen(abc.ABC):
         for widget in self.__widgets:
             widget.render(surface)
 
+    def handleClick(self, event) -> None:
+        for widget in self.__widgets:
+            widget.handleClick(event)
 
 
     def getWindowData(self):

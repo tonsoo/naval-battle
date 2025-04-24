@@ -19,10 +19,11 @@ class Window(abc.ABC):
     __windowData:WindowData = None
     
 
-    def __init__(self, width:float = 800, height:float = 600, startIndex:int = 0, backgroundColor=(0,0,0)):
+    def __init__(self, app, width:float = 800, height:float = 600, startIndex:int = 0, backgroundColor=(0,0,0)):
         self.__thread = threading.Thread(target=self.run)
         
         self.__windowData = WindowData(
+            app=app,
             width=width,
             height=height,
             background=backgroundColor
@@ -120,10 +121,18 @@ class Window(abc.ABC):
                         self.__thread.join()
                     except:
                         pass
+                    
+                self.propagateEvent(event, self.__currentScreen)
+                        
             self.update(self.__currentScreen, self.__window)
 
             pygame.display.update()
              
+    def propagateEvent(self, event, screen:Screen):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                screen.handleClick(event)
+        
     def update(self, screen:Screen, window:pygame.Surface):
         self.__window.fill(self.__windowData.getBackground())
 

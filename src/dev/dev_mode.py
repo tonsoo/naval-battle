@@ -3,6 +3,8 @@ import os
 import sys
 import pygame
 from termcolor import colored
+import importlib
+import screens
 
 
 class DevMode:
@@ -39,6 +41,7 @@ class DevMode:
         
     def reload():
         print('Reloading...')
+        importlib.reload(screens)
         DevMode.__app.refresh()
         
 

@@ -18,7 +18,7 @@ class App:
         if self.is_running():
             raise AppAlreadyRunning()
         
-        self.__window = AppWindow()
+        self.__window = AppWindow(self)
         
     def stop(self) -> None:
         if not self.is_running():
@@ -37,6 +37,9 @@ class App:
         return self.__window.isWindowOpen()
     
     
+    
+    def get_window(self) -> Window:
+        return self.__window
     
     def get_title(self) -> str:
         return self.__title

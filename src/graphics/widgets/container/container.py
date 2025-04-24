@@ -19,6 +19,22 @@ class Container(Widget):
         self.__children = children
         
         
+    def handleClick(self, event):
+        super().handleClick(event)
+        
+        for child in self.__children:
+            rect = Rect(
+                x=child.x, y=child.y,
+                width=child.width, height=child.height
+            )
+            
+            child_rect = self._calculate_child_rect(child)
+            self._mutate_child_rect(child, child_rect)
+            
+            child.handleClick(event)
+            
+            self._mutate_child_rect(child, rect)
+    
         
     def render(self, surface):
         self_rect = Rect(
@@ -40,11 +56,12 @@ class Container(Widget):
                 if child_rect.height > self_rect.height:
                     self_rect.height = child_rect.height
 
-        pygame.draw.rect(
-            surface,
-            color=self.color,
-            rect=[self_rect.x, self_rect.y, self_rect.width, self_rect.height]
-        )
+        if self.color != None:
+            pygame.draw.rect(
+                surface,
+                color=self.color,
+                rect=[self_rect.x, self_rect.y, self_rect.width, self_rect.height]
+            )
 
         for child in self.__children:
             rect = Rect(

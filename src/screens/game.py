@@ -15,6 +15,8 @@ class Game(Screen):
 
     
     def build(self, windowData:WindowData):
+        super().build(windowData)
+        
         self._camera = Camera(windowData, 0, 0)
         self._player = Player(speed=120, sprintSpeed=360)
 
@@ -26,5 +28,8 @@ class Game(Screen):
     
 
     def update(self):
+        if not self._isBuilt:
+            return
+
         self._player.tick()
         self._camera.tick()
