@@ -14,13 +14,13 @@ class Board(Container):
     _tile_dimension:tuple[int, int]
     _opened:dict[int, bool]
     _ships:int
-    _ships_sizes:list[int]
+    _ships_sizes:list[tuple[int, int]]
     
-    def __init__(self, size, padding, spacing, ships = 5, _ships_sizes = [2, 3, 4], x=0, y=0, width=0, height=0):
+    def __init__(self, size, padding, spacing, ships = 5, ships_sizes = [[2, 4], [3, 2], [4, 1]], x=0, y=0, width=0, height=0):
         self._size = size
         self._padding = padding
         self._spacing = spacing
-        self._ships_sizes = list(set(_ships_sizes))
+        self._ships_sizes = list(ships_sizes)
         
         super().__init__(x, y, width, height, (105, 163, 245), [])
 
@@ -45,7 +45,7 @@ class Board(Container):
         )
     
     
-    def generate_board(self):
+    def generate_board(self, has_bombs = True, has_ships = True):
         self._refresh_board = False
         dprint('Refreshing board')
 
@@ -67,35 +67,65 @@ class Board(Container):
             grid_dimension[1] / max(1, size[1]) - spacing[1] + (spacing[1] / max(1, size[1] - 1))
         )
 
-        def attack_tile(tile: Tile):
-            tile.attack()
-
         # 0 = water, 1 = ship, 2 = bomb
         board_grid = [[0 for _ in range(size[0])] for _ in range(size[1])]
 
-        def can_place(x, y, length, horizontal):
-            for i in range(length):
-                nx = x + i if horizontal else x
-                ny = y if horizontal else y + i
-                if nx >= size[0] or ny >= size[1] or board_grid[ny][nx] == 1:
-                    return False
-            return True
+        if has_ships:
+            self.populate_ships(board_grid)
 
-        def place_ship(length):
-            while True:
-                horizontal = random.choice([True, False])
-                x = random.randint(0, size[0] - (length if horizontal else 1))
-                y = random.randint(0, size[1] - (1 if horizontal else length))
-                if can_place(x, y, length, horizontal):
-                    for i in range(length):
-                        nx = x + i if horizontal else x
-                        ny = y if horizontal else y + i
-                        board_grid[ny][nx] = 1
-                    return
+        if has_bombs:
+            self.populate_bombs(board_grid, random.randint(3, int(size[0] * size[1] * .25)))
 
-        for ship_size in self._ships_sizes:
-            place_ship(ship_size)
+        self.create_tiles(board_grid)
+
+    def create_tiles(self, board_grid):
+        size = self._size
+        
+        def attack_tile(tile: Tile):
+            tile.attack()
+
+        for y in range(size[1]):
+            for x in range(size[0]):
+                tile_type = TileTypes.water()
+                if board_grid[y][x] == 1:
+                    tile_type = TileTypes.ship()
+                elif board_grid[y][x] == 2:
+                    tile_type = TileTypes.bomb()
+                self.add_child(
+                    Tile(
+                        type=tile_type,
+                        board=self,
+                        x=x,
+                        y=y
+                    ).onClick(attack_tile)
+                )
+
+    def populate_ships(self, board_grid):
+        size = self._size
+        
+        for ship_size, ship_count in self._ships_sizes:
+            for _ in range(ship_count):
+                placed = False
+                while not placed:
+                    vertical = random.choice([True, False])
+                    if vertical:
+                        x = random.randint(0, size[0] - 1)
+                        y = random.randint(0, size[1] - ship_size)
+                        if all(board_grid[y + i][x] == 0 for i in range(ship_size)):
+                            for i in range(ship_size):
+                                board_grid[y + i][x] = 1
+                            placed = True
+                    else:
+                        x = random.randint(0, size[0] - ship_size)
+                        y = random.randint(0, size[1] - 1)
+                        if all(board_grid[y][x + i] == 0 for i in range(ship_size)):
+                            for i in range(ship_size):
+                                board_grid[y][x + i] = 1
+                            placed = True
             
+    def populate_bombs(self, board_grid, bomb_count = 4):
+        size = self._size
+        
         from math import dist
 
         def is_adjacent_to_ship(x, y):
@@ -128,7 +158,6 @@ class Board(Container):
                 score -= int(10 / (dist((x, y), (bx, by)) + 1e-5))
             return score
 
-        bomb_count = 3
         bombs = []
         while len(bombs) < bomb_count:
             candidates = []
@@ -143,25 +172,8 @@ class Board(Container):
             _, bx, by = candidates[0]
             board_grid[by][bx] = 2
             bombs.append((bx, by))
-
-        dprint(bombs)
-
-        for y in range(size[1]):
-            for x in range(size[0]):
-                tile_type = TileTypes.water()
-                if board_grid[y][x] == 1:
-                    tile_type = TileTypes.ship()
-                elif board_grid[y][x] == 2:
-                    tile_type = TileTypes.bomb()
-                self.add_child(
-                    Tile(
-                        type=tile_type,
-                        board=self,
-                        x=x,
-                        y=y
-                    ).onClick(attack_tile)
-                )
-
+            
+        return bombs
 
     def render(self, surface):
         if self._refresh_board:

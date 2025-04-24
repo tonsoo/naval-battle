@@ -14,6 +14,7 @@ class Text(Widget):
     def __init__(self, text:str='', x=0, y=0, color:pygame.Color = (0,0,0)):
         super().__init__(x, y, 0, 0)
 
+        self._color = color
         self._text = text
 
     def font(self, font:Font):
@@ -22,6 +23,10 @@ class Text(Widget):
     
     def font_size(self, size:float):
         self._fontSize = size
+        return self
+    
+    def text(self, text:str):
+        self._text = text
         return self
     
     def validate_font(self):
