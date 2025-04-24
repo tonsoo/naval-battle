@@ -27,7 +27,8 @@ class App:
         self.__window = None
         
     def refresh(self) -> None:
-        pass
+        if self.__window != None:
+            self.__window.reloadScreen()
     
     def is_running(self) -> bool:
         if self.__window is None:

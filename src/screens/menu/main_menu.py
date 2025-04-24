@@ -12,8 +12,6 @@ class MainMenu(Screen):
 
     
     def build(self, windowData:WindowData):
-        super().__init__(windowData)
-        
         self.addWidget(
             Container(
                 width=windowData.getWidth(),

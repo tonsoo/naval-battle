@@ -1,5 +1,4 @@
 import abc
-from ctypes.wintypes import PULARGE_INTEGER
 import pygame
 import threading
 
@@ -48,7 +47,6 @@ class Window(abc.ABC):
     
     def getHeight(self) -> float:
         return self.getData().getHeight()
-    
 
     
     def isWindowOpen(self) -> bool:
@@ -64,6 +62,22 @@ class Window(abc.ABC):
         self.__currentScreen = screenList[clampedValue]
         self.__currentScreenIsBuilt = False
     
+    def reloadScreen(self) -> None:
+        screen = None
+        
+        
+        screenList = self.getScreens()
+        i = 0
+        for _ in screenList:
+            if _.id() == self.__currentScreen.id():
+                screen = _
+                break
+            i = i + 1
+            
+        if screen != None:
+            self.changeScreen(i)
+        else:
+            print('Failed to find screen')
     
     def openWindow(self):
         driver = pygame.display.get_driver()
@@ -94,15 +108,16 @@ class Window(abc.ABC):
             if not self.__currentScreenIsBuilt:
                 self.__currentScreen.build(self.getData())
                 self.__currentScreenIsBuilt = True
+
+            events = pygame.event.get()
+            DevMode.update(events)
             
-            for event in pygame.event.get():
+            for event in events:
                 if event.type == pygame.QUIT:
                     self.__windowOpen = False
                     
                     try:
-                        DevMode.stop()
                         self.__thread.join()
-                        self.__windowOpen = False
                     except:
                         pass
             self.update(self.__currentScreen, self.__window)

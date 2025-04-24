@@ -1,4 +1,5 @@
 import abc
+from re import S
 import string
 from turtle import _Screen
 
@@ -24,6 +25,9 @@ class Screen(abc.ABC):
         
         if Screen.getScreenById(identifier) != None:
             raise DuplicateScreenId()
+        
+        if identifier == None:
+            identifier = self.__class__
         
         # inicializa screen
         super().__init__()
@@ -67,5 +71,5 @@ class Screen(abc.ABC):
     @staticmethod
     def getScreenById(id:string) -> _Screen:
         for screen in Screen.__list:
-            if screen.id == id:
+            if screen.id() == id:
                 return screen

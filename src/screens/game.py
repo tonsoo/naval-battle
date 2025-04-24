@@ -15,8 +15,6 @@ class Game(Screen):
 
     
     def build(self, windowData:WindowData):
-        super().__init__(windowData)
-
         self._camera = Camera(windowData, 0, 0)
         self._player = Player(speed=120, sprintSpeed=360)
 

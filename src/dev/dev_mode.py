@@ -1,68 +1,57 @@
 from csv import Error
 import os
 import sys
-from threading import Thread
-from time import sleep
 import pygame
 from termcolor import colored
 
 
-class DevMode(Thread):
+class DevMode:
     __initialized:bool = False
     __instance = None
+    __app = None
 
-    def __init__(self, group = None, target = None, name = None, args = ..., kwargs = None, *, daemon = None):
+    def __init__(self):
         if DevMode.__instance != None:
             raise Error('Dev mode already has an instance running')
-        
-        super().__init__(group, target, name, args, kwargs, daemon=daemon)
 
         DevMode.__initialized = True
         DevMode.__instance = self
 
-    def init():
+    def init(app):
         print('Entering dev mode')
 
+        DevMode.__app = app
         DevMode.help()
         
         DevMode()
-        DevMode.__instance.start()
-
-    def stop():
-        if DevMode.__instance == None:
-            return
-
-        print('Exiting dev mode')
-        try:
-            DevMode.__instance.join()
-        except:
-            pass
 
     def help():
         print('Press', colored('R', 'white', attrs=['bold']), 'to restart')
+        if DevMode.__app != None:
+            print('Press', colored('r', 'white', attrs=['bold']), 'to reload')
 
     def restart():
         print('Restarting...')
         cmd = [sys.executable, sys.executable, *sys.argv]
         print('Command:', cmd)
-        DevMode.stop()
         pygame.quit()
         os.execl(*cmd)
+        
+    def reload():
+        print('Reloading...')
+        DevMode.__app.refresh()
+        
 
-    def run(self):
-        while DevMode.__initialized:
-            if not pygame.display.get_init():
-                continue
+    def update(events:list[pygame.event.Event]):
+        if not pygame.display.get_init():
+            return
 
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.unicode == 'R':
-                        DevMode.restart()
-            sleep(0.3)
-
-    def join(self, timeout = None):
-        DevMode.__initialized = False
-        return super().join(timeout)
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.unicode == 'R':
+                    DevMode.restart()
+                elif event.unicode == 'r':
+                    DevMode.reload()
     
     def isInitialized():
         return DevMode.__initialized
