@@ -62,6 +62,9 @@ class Screen(abc.ABC):
             widget.handleClick(event)
 
 
+    def get_widgets(self):
+        return self.__widgets
+    
     def getWindowData(self):
         return self._windowData
 

@@ -1,6 +1,8 @@
 import pygame
 from core.time import Time
 from entities.entity import Entity
+from graphics.widgets.image.image import Image
+from models.generics.rect import Rect
 
 
 class Player(Entity):
@@ -24,8 +26,9 @@ class Player(Entity):
         
         
     
-    def tick(self):
+    def tick(self, collidables):
         self.move()
+        self.detect_collisions(collidables)
     
     def render(self, surface):
         pygame.draw.rect(
@@ -35,6 +38,18 @@ class Player(Entity):
         )
         
         
+    def handle_collision(self, collidable):
+        if isinstance(collidable.widget(), Image):
+            print(f'({self.x}, {self.y})')
+        
+    def detect_collisions(self, collidables):
+        r = Rect(self.x, self.y, self.width, self.height)
+        for col in collidables:
+            if not col.can_collide():
+                continue
+            
+            if col.collides(r):
+                self.handle_collision(col)
         
     def move(self):
         x = 0

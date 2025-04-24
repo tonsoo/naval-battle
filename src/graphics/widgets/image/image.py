@@ -12,7 +12,7 @@ class Image(Widget):
 
         self._src = src
         self._image = pygame.image.load(src)
-        pygame.transform.scale(self._image, (width, height))
+        self._image = pygame.transform.scale(self._image, (width, height))
 
     
     def render(self, surface):
