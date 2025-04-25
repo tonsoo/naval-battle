@@ -51,6 +51,8 @@ class Screen(abc.ABC):
     def addWidget(self, widget:Widget) -> None:
         self.__widgets.append(widget)
     
+    def removeWidget(self, widget:Widget) -> None:
+        self.__widgets.remove(widget)
     
     
     def render(self, surface:Surface) -> None:

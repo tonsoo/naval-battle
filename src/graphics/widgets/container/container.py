@@ -110,6 +110,10 @@ class Container(Widget):
             rect.height = self.height
 
         return rect
+    
+    def handleKeys(self, keys) -> None:
+        for child in self.__children:
+            child.handleKeys(keys)
 
     def renderIndividualChild(self, surface:Surface, child:Widget) -> None:
         child.render(surface)

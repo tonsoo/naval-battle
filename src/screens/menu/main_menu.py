@@ -60,8 +60,6 @@ class MainMenu(Screen):
             )
         )
 
-
-
     def update(self):
         if not self._isBuilt:
             return

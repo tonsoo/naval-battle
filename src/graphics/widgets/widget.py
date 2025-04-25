@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Callable
 from pygame import Surface
 from models.generics.rect import Rect
@@ -29,7 +29,7 @@ class Widget(ABC, Rect):
         
         if self._onClick != None:
             self._onClick(self, event)
-            
+    
     def handleKeys(self, keys) -> None:
         pass
     

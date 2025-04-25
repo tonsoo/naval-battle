@@ -7,6 +7,7 @@ from dev.dev_mode import dprint
 from graphics.widgets.container.container import Container
 from graphics.widgets.text.text import Text
 from objects.game.board import Board
+from objects.game.pc_board import PcBoard
 from objects.game.placeable_ship import ShipWidget
 from objects.game.player_board import PlayerBoard
 
@@ -16,6 +17,7 @@ class Game(Screen):
     TURN_COLOR = (7, 171, 37)
     DEFAULT_COLOR = (191, 127, 75)
 
+    _started = False
     _playerBoard = None
     _playerHeader = None
     _pcBoard = None
@@ -24,6 +26,12 @@ class Game(Screen):
     _start:int = 0
     _timer:Text = None
     _ship_selection_panel = None
+    _ship_tiles = []
+    
+    board_offset_y = None
+    board_offset_x = None
+    board_spacing = None
+    board_width = None
 
     
     def build(self, windowData:WindowData):
@@ -37,50 +45,153 @@ class Game(Screen):
             color=(255, 255, 255),
         ).font_size(30)
         
+        self.board_offset_y = 80
+        self.board_offset_x = 25
+        self.board_spacing = 25
+        self.board_width = windowData.getWidth() / 2 - self.board_offset_x - self.board_spacing / 2
+        
         self.add_boards(windowData)
         
-        self.ship_placement()
+        self.ship_placement(windowData)
         
-    def ship_placement(self):
-        ship_list = []
-
+    def ship_placement(self, windowData):
+        board_offset_y = self.board_offset_y
+        board_offset_x = self.board_offset_x
+        board_spacing = self.board_spacing
+        board_width = self.board_width
+        
         ships_options = [5, 4, 3, 3, 2]
-        largest = max(ships_options)
+        cells_hor = self._playerBoard.get_size()[0]
+        cells_ver = self._playerBoard.get_size()[1]
         
-        panel_width = 150
+        panel_width = board_width
+        panel_height = windowData.getHeight() - board_offset_y / 2
         ship_spacing = 15
-        ship_tile_size = panel_width / largest - ship_spacing / largest
+        ship_tile_width = (panel_width) / cells_hor - ship_spacing / cells_hor - self._playerBoard.get_padding()[0] / cells_hor
+        ship_tile_height = (panel_height - board_offset_y / 2 - self._playerBoard.get_padding()[1]) / cells_ver - ship_spacing / cells_ver - self._playerBoard.get_padding()[1] / 2
+
+        self._ship_selection_panel = Container(
+            x=board_width + board_offset_x + board_spacing,
+            y=board_offset_y / 2,
+            width=panel_width,
+            height=panel_height,
+            color=(40, 40, 40),
+        )
+        self.addWidget(self._ship_selection_panel)
         
         y_offset = 10
         for size in ships_options:
-            ship_list.append(
-                ShipWidget(
-                    size=size,
-                    width=ship_tile_size * size,
-                    height=ship_tile_size,
-                    x=10,
-                    y=y_offset,
-                    color=(100, 100, 255)
-                )
-            )
-            y_offset += ship_tile_size + ship_spacing
+            tile = ShipWidget(
+                size=size,
+                width=ship_tile_width * size,
+                height=ship_tile_height,
+                x=board_width + board_offset_x + board_spacing + 10,
+                y=board_offset_y / 2 + y_offset,
+                color=(100, 100, 255)
+            ).setOnDrop(self.snap_to_board)
+            
+            self._ship_tiles.append(tile)
+            self.addWidget(tile)
+            
+            y_offset += ship_tile_width + ship_spacing
+
+
+    def snap_to_board(self, ship: ShipWidget):
+        board = self._playerBoard
         
-        self._ship_selection_panel = Container(
-            x=10,
-            y=10,
-            width=panel_width,
-            height=500,
-            color=(40, 40, 40),
-            children=ship_list
-        )
-        self.addWidget(self._ship_selection_panel)
+        mx, my = pygame.mouse.get_pos()
+        
+        tile = board.find_nearest_tile(mx, my)
+        if tile is None:
+            return
+        
+        tile_x, tile_y = tile
+        snapped_x, snapped_y = board.grid_to_screen(tile_x, tile_y)
+        ship.x = snapped_x
+        ship.y = snapped_y
+
+
+    def start_game(self):
+        if random.randint(0, 100) > 50:
+            self._playerBoard.give_turn()
+            dprint('player turn')
+        else:
+            self._pcBoard.give_turn()
+            dprint('pc turn')
+            
+    def validate_and_place_ships(self):
+        board = self._playerBoard
+
+        occupied = set()
+        ships = []
+
+        for widget in self.get_widgets():
+            if isinstance(widget, ShipWidget) and not widget.dragging:
+                center_x = widget.x
+                center_y = widget.y
+
+                start_tile = board.find_nearest_tile(center_x, center_y)
+                if not start_tile:
+                    self._timer.text('Posicione os navios')
+                    return False
+
+                start_x, start_y = start_tile
+
+                for i in range(widget.size):
+                    tile_x = start_x + i if widget.horizontal else start_x
+                    tile_y = start_y if widget.horizontal else start_y + i
+
+                    if tile_x >= board.get_size()[0] or tile_y >= board.get_size()[1]:
+                        self._timer.text('Navios fora do tabuleiro')
+                        return False
+
+                    if (tile_x, tile_y) in occupied:
+                        self._timer.text('Navios em sobreposição')
+                        return False
+
+                    occupied.add((tile_x, tile_y))
+
+                ships.append({
+                    "start": (start_x, start_y),
+                    "horizontal": widget.horizontal,
+                    "size": widget.size,
+                    "tiles": [ (start_x + i if widget.horizontal else start_x,
+                                start_y if widget.horizontal else start_y + i)
+                            for i in range(widget.size) ]
+                })
+
+        if len(ships) < 5:
+            print("Not all ships placed")
+            return False
+
+        for ship in ships:
+            board.place_ship(
+                x=ship["start"][0],
+                y=ship["start"][1],
+                vertical=not ship["horizontal"],
+                length=ship["size"]
+            )
+        print("All ships validated and placed!")
+        
+        self._playerBoard.generate_board_with_bombs()
+        
+        self.removeWidget(self._ship_selection_panel)
+        for ship_tile in self._ship_tiles:
+            self.removeWidget(ship_tile)
+        self._ship_tiles = []
+        
+        self.start_game()
+        
+        return True
+
+
 
     def add_boards(self, windowData):
-        board_offset_y = 80
-        board_offset_x = 25
-        board_spacing = 25
-        board_width = windowData.getWidth() / 2 - board_offset_x - board_spacing / 2
-
+        board_offset_y = self.board_offset_y
+        board_offset_x = self.board_offset_x
+        board_spacing = self.board_spacing
+        board_width = self.board_width
+        
         self._playerBoard = PlayerBoard(
             size=(9, 15),
             padding=(10, 20),
@@ -101,7 +212,7 @@ class Game(Screen):
             x=board_offset_x
         )
         
-        self._pcBoard = Board(
+        self._pcBoard = PcBoard(
             size=(9, 15),
             padding=(10, 20),
             spacing=(8, 10),
@@ -120,13 +231,6 @@ class Game(Screen):
             color=(105, 131, 245),
             x=board_width + board_offset_x + board_spacing,
         )
-        
-        if random.randint(0, 100) > 50:
-            self._playerBoard.give_turn()
-            dprint('player turn')
-        else:
-            self._pcBoard.give_turn()
-            dprint('pc turn')
         
         self.addWidget(
             Container(
@@ -171,7 +275,7 @@ class Game(Screen):
     def update(self):
         self.update_boards()
         
-        if self._timer == None:
+        if self._timer == None or not self._started:
             return
         
         elapsed_time = pygame.time.get_ticks() - self._start
@@ -181,3 +285,9 @@ class Game(Screen):
 
         txt = f'Tempo: {minutes:02}:{seconds:02}'
         self._timer.text(txt)
+        
+    def handleKeys(self, keys):
+        super().handleKeys(keys)
+
+        if keys[pygame.K_RETURN]:
+            self.validate_and_place_ships()
