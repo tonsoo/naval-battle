@@ -60,6 +60,10 @@ class Screen(abc.ABC):
     def handleClick(self, event) -> None:
         for widget in self.__widgets:
             widget.handleClick(event)
+            
+    def handleKeys(self, keys) -> None:
+        for widget in self.__widgets:
+            widget.handleKeys(keys)
 
 
     def get_widgets(self):

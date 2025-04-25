@@ -113,7 +113,7 @@ class Board(Container):
 
         self.create_tiles(self._board_grid)
 
-    def attack_tile(self, tile: Tile):
+    def attack_tile(self, tile: Tile, _):
         if not self._has_turn:
             return
         

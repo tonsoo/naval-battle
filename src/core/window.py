@@ -126,7 +126,10 @@ class Window(abc.ABC):
                         pass
                     
                 self.propagateEvent(event, self.__currentScreen)
-                        
+            
+            keys = pygame.key.get_pressed()
+            self.__currentScreen.handleKeys(keys)
+                 
             self.update(self.__currentScreen, self.__window)
 
             pygame.display.update()

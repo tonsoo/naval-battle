@@ -7,6 +7,7 @@ from dev.dev_mode import dprint
 from graphics.widgets.container.container import Container
 from graphics.widgets.text.text import Text
 from objects.game.board import Board
+from objects.game.placeable_ship import ShipWidget
 from objects.game.player_board import PlayerBoard
 
 
@@ -22,6 +23,7 @@ class Game(Screen):
     _collidables = []
     _start:int = 0
     _timer:Text = None
+    _ship_selection_panel = None
 
     
     def build(self, windowData:WindowData):
@@ -35,6 +37,45 @@ class Game(Screen):
             color=(255, 255, 255),
         ).font_size(30)
         
+        self.add_boards(windowData)
+        
+        self.ship_placement()
+        
+    def ship_placement(self):
+        ship_list = []
+
+        ships_options = [5, 4, 3, 3, 2]
+        largest = max(ships_options)
+        
+        panel_width = 150
+        ship_spacing = 15
+        ship_tile_size = panel_width / largest - ship_spacing / largest
+        
+        y_offset = 10
+        for size in ships_options:
+            ship_list.append(
+                ShipWidget(
+                    size=size,
+                    width=ship_tile_size * size,
+                    height=ship_tile_size,
+                    x=10,
+                    y=y_offset,
+                    color=(100, 100, 255)
+                )
+            )
+            y_offset += ship_tile_size + ship_spacing
+        
+        self._ship_selection_panel = Container(
+            x=10,
+            y=10,
+            width=panel_width,
+            height=500,
+            color=(40, 40, 40),
+            children=ship_list
+        )
+        self.addWidget(self._ship_selection_panel)
+
+    def add_boards(self, windowData):
         board_offset_y = 80
         board_offset_x = 25
         board_spacing = 25

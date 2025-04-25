@@ -6,13 +6,13 @@ from models.generics.rect import Rect
 
 class Widget(ABC, Rect):
     
-    _onClick:Callable[[any], None] = None
+    _onClick:Callable[[any, any], None] = None
 
 
     def __init__(self, x = 0, y = 0, width = 0, height = 0):
         super().__init__(x, y, width, height)
 
-    def onClick(self, callback:Callable[[any], None]):
+    def onClick(self, callback:Callable[[any, any], None]):
         self._onClick = callback
         return self
 
@@ -28,7 +28,10 @@ class Widget(ABC, Rect):
             return
         
         if self._onClick != None:
-            self._onClick(self)
+            self._onClick(self, event)
+            
+    def handleKeys(self, keys) -> None:
+        pass
     
     def render(self, surface:Surface) -> None:
         pass

@@ -41,7 +41,7 @@ class MainMenu(Screen):
                                 )
                                 .font_size(30)
                         ]
-                    ).onClick(lambda _: windowData.getApp().get_window().changeScreen(1)),
+                    ).onClick(lambda _, __: windowData.getApp().get_window().changeScreen(1)),
                     Container(
                         width=200,
                         height=50,
@@ -55,7 +55,7 @@ class MainMenu(Screen):
                                 )
                                 .font_size(30)
                         ]
-                    ).onClick(lambda _: pygame.quit())
+                    ).onClick(lambda _, __: pygame.quit())
                 ]
             )
         )
