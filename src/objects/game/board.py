@@ -2,28 +2,46 @@ import random
 from dev.dev_mode import dprint
 from graphics.widgets.container.container import Container
 from models.generics.rect import Rect
-from objects.game.tile import Tile, TileType, TileTypes
+from objects.game.tiles.bomb import Bomb
+from objects.game.tiles.ship import Ship
+from objects.game.tiles.tile import Tile
+from objects.game.tiles.water import Water
 
 
 class Board(Container):
     
-    _size:tuple[int, int]
-    _padding:tuple[int, int]
-    _spacing:tuple[int, int]
+    _size:tuple[int, int] = (0, 0)
+    _padding:tuple[int, int] = (0, 0)
+    _spacing:tuple[int, int] = (0, 0)
     _refresh_board:bool = True
-    _tile_dimension:tuple[int, int]
-    _opened:dict[int, bool]
-    _ships:int
-    _ships_sizes:list[tuple[int, int]]
+    _tile_dimension:tuple[int, int] = (0, 0)
+    _opened:dict[int, bool] = (0, False)
+    _ships:int = 5
+    _ships_sizes:list[tuple[int, int]] = []
+    _has_turn:bool = False
+    _tile_map = {}
+    _board_grid = []
     
     def __init__(self, size, padding, spacing, ships = 5, ships_sizes = [[2, 4], [3, 2], [4, 1]], x=0, y=0, width=0, height=0):
         self._size = size
         self._padding = padding
         self._spacing = spacing
         self._ships_sizes = list(ships_sizes)
+
+        # 0 = water, 1 = ship, 2 = bomb
+        self._board_grid = [[0 for _ in range(size[0])] for _ in range(size[1])]
         
         super().__init__(x, y, width, height, (105, 163, 245), [])
 
+    def has_turn(self):
+        return self._has_turn
+    
+    def give_turn(self):
+        self._has_turn = True
+        
+    def take_turn(self):
+        self._has_turn = False
+        
     def get_size(self):
         return self._size
 
@@ -33,6 +51,22 @@ class Board(Container):
     def get_spacing(self):
         return self._spacing
     
+    
+    def _is_tile_at(self, tile, x, y):
+        if not isinstance(tile, Tile):
+            return
+        
+        _index = tile.get_index()
+        return _index[0] == x and _index[1] == y
+    
+    def get_tile_at(self, x_index, y_index):
+        return self._tile_map.get((x_index, y_index))
+        # for child in self.get_children():
+        #     if isinstance(child, Tile):
+        #         x, y = child.get_index()
+        #         if x == x_index and y == y_index:
+        #             return child
+        # return None
     
     
     def get_tile_rect(self, x, y):
@@ -44,10 +78,9 @@ class Board(Container):
             y=self._padding[1] + y * dimension[1] + y * self._spacing[1],
         )
     
-    
-    def generate_board(self, has_bombs = True, has_ships = True):
+    def _start_board_generation(self):
         self._refresh_board = False
-        dprint('Refreshing board')
+        dprint('Generating board')
 
         self.empty_children()
 
@@ -66,39 +99,57 @@ class Board(Container):
             grid_dimension[0] / max(1, size[0]) - spacing[0] + (spacing[0] / max(1, size[0] - 1)),
             grid_dimension[1] / max(1, size[1]) - spacing[1] + (spacing[1] / max(1, size[1] - 1))
         )
-
-        # 0 = water, 1 = ship, 2 = bomb
-        board_grid = [[0 for _ in range(size[0])] for _ in range(size[1])]
-
-        if has_ships:
-            self.populate_ships(board_grid)
-
-        if has_bombs:
-            self.populate_bombs(board_grid, random.randint(3, int(size[0] * size[1] * .25)))
-
-        self.create_tiles(board_grid)
-
-    def create_tiles(self, board_grid):
+    
+    def generate_board(self, has_bombs = True, has_ships = True):
         size = self._size
         
-        def attack_tile(tile: Tile):
-            tile.attack()
+        self._start_board_generation()
+
+        if has_ships:
+            self.populate_ships(self._board_grid)
+
+        if has_bombs:
+            self.populate_bombs(self._board_grid, random.randint(3, int(size[0] * size[1] * .25)))
+
+        self.create_tiles(self._board_grid)
+
+    def attack_tile(self, tile: Tile):
+        if not self._has_turn:
+            return
+        
+        tile.attack(self)
+        
+    def create_tiles(self, board_grid):
+        size = self._size
+        self._tile_map = {}
 
         for y in range(size[1]):
             for x in range(size[0]):
-                tile_type = TileTypes.water()
+                tile = None
                 if board_grid[y][x] == 1:
-                    tile_type = TileTypes.ship()
-                elif board_grid[y][x] == 2:
-                    tile_type = TileTypes.bomb()
-                self.add_child(
-                    Tile(
-                        type=tile_type,
+                    tile = Ship(
                         board=self,
                         x=x,
                         y=y
-                    ).onClick(attack_tile)
-                )
+                    )
+                elif board_grid[y][x] == 2:
+                    tile = Bomb(
+                        board=self,
+                        x=x,
+                        y=y
+                    )
+                else:
+                    tile = Water(
+                        board=self,
+                        x=x,
+                        y=y
+                    )
+                    
+                if tile != None:
+                    self._tile_map[(x, y)] = tile
+                    self.add_child(
+                        tile.onClick(self.attack_tile)
+                    )
 
     def populate_ships(self, board_grid):
         size = self._size
@@ -174,6 +225,15 @@ class Board(Container):
             bombs.append((bx, by))
             
         return bombs
+    
+    def refresh_tiles(self):
+        pass
+        # for child in self.__children:
+        #     if isinstance(child, Tile):
+        #         if self._has_turn:
+        #             child.onClick(self.attack_tile)
+        #         else:
+        #             child.onClick(lambda _: None)
 
     def render(self, surface):
         if self._refresh_board:

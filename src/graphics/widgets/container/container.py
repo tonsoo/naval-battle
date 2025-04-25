@@ -1,3 +1,4 @@
+from typing import Callable
 from pygame import Color, Surface
 import pygame
 from graphics.widgets.container.container_traits import ContainerTraits
@@ -40,6 +41,9 @@ class Container(Widget):
         
     def add_child(self, child):
         self.__children.append(child)
+        
+    def get_children(self,):
+        return self.__children
         
     def render(self, surface):
         self_rect = Rect(
