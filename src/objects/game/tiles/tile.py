@@ -34,6 +34,9 @@ class Tile(Container, ABC):
     
     def on_open(self, board):
         pass
+    
+    def is_open(self):
+        return self._opened
         
     def attack(self, board) -> bool:
         if self._opened:

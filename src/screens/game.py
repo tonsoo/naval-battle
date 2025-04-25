@@ -10,6 +10,7 @@ from objects.game.board import Board
 from objects.game.pc_board import PcBoard
 from objects.game.placeable_ship import ShipWidget
 from objects.game.player_board import PlayerBoard
+from objects.game.tiles.ship import Ship
 
 
 class Game(Screen):
@@ -112,9 +113,13 @@ class Game(Screen):
 
 
     def start_game(self):
+        self._started = True
+        
         if random.randint(0, 100) > 50:
             self._playerBoard.give_turn()
             dprint('player turn')
+            
+            self.next_turn()
         else:
             self._pcBoard.give_turn()
             dprint('pc turn')
@@ -193,6 +198,7 @@ class Game(Screen):
         board_width = self.board_width
         
         self._playerBoard = PlayerBoard(
+            game=self,
             size=(9, 15),
             padding=(10, 20),
             spacing=(8, 10),
@@ -213,6 +219,7 @@ class Game(Screen):
         )
         
         self._pcBoard = PcBoard(
+            game=self,
             size=(9, 15),
             padding=(10, 20),
             spacing=(8, 10),
@@ -285,6 +292,35 @@ class Game(Screen):
 
         txt = f'Tempo: {minutes:02}:{seconds:02}'
         self._timer.text(txt)
+        
+    def next_turn(self):
+        if self._playerBoard.has_turn():
+            tile = None
+            while tile == None:
+                position_index = random.randint(0, self._playerBoard.remaining.__len__() - 1)
+                position = self._playerBoard.remaining[position_index]
+                
+                tile = self._playerBoard.get_tile_at(
+                    position[0],
+                    position[1]
+                )
+                
+                if tile.is_open():
+                    self._playerBoard.remaining.remove(tile.get_index())
+                    tile = None
+                
+            self._playerBoard.attack_tile(tile, None)
+            self._playerBoard.remaining.remove(tile.get_index())
+
+            if not isinstance(tile, Ship):
+                self._playerBoard.take_turn()
+                self._pcBoard.give_turn()
+            else:
+                self.next_turn()
+        elif self._pcBoard.has_turn():
+            self._pcBoard.take_turn()
+            self._playerBoard.give_turn()
+            self.next_turn()
         
     def handleKeys(self, keys):
         super().handleKeys(keys)

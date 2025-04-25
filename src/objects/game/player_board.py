@@ -3,9 +3,21 @@ from objects.game.board import Board
 
 
 class PlayerBoard(Board):
-    def __init__(self, size, padding, spacing, ships=5, ships_sizes=[[2, 4], [3, 2], [4, 1]], x=0, y=0, width=0, height=0):
+    
+    _interactable = False
+    _game = None
+    remaining = []
+    
+    def __init__(self, game, size, padding, spacing, ships=5, ships_sizes=[[2, 4], [3, 2], [4, 1]], x=0, y=0, width=0, height=0):
         super().__init__(size, padding, spacing, ships, ships_sizes, x, y, width, height)
 
+        self._game = game
+        self.remaining = [(_x, _y) for _x in range(size[0]) for _y in range(size[1])]
+        print(self.remaining)
+
+    # def on_attacked(self):
+    #     self._game.next_turn()
+        
     def generate_board(self):
         self._start_board_generation()
         

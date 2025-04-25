@@ -10,6 +10,7 @@ from objects.game.tiles.water import Water
 
 class Board(Container):
     
+    _interactable:bool = True
     _size:tuple[int, int] = (0, 0)
     _padding:tuple[int, int] = (0, 0)
     _spacing:tuple[int, int] = (0, 0)
@@ -117,7 +118,12 @@ class Board(Container):
         if not self._has_turn:
             return
         
-        tile.attack(self)
+        if not tile.is_open():
+            tile.attack(self)
+            self.on_attacked(tile)
+        
+    def on_attacked(self, tile):
+        pass
         
     def create_tiles(self, board_grid):
         size = self._size
@@ -146,10 +152,11 @@ class Board(Container):
                     )
                     
                 if tile != None:
+                    if self._interactable:
+                        tile = tile.onClick(self.attack_tile)
+
                     self._tile_map[(x, y)] = tile
-                    self.add_child(
-                        tile.onClick(self.attack_tile)
-                    )
+                    self.add_child(tile)
 
     def populate_ships(self, board_grid):
         size = self._size
@@ -228,12 +235,6 @@ class Board(Container):
     
     def refresh_tiles(self):
         pass
-        # for child in self.__children:
-        #     if isinstance(child, Tile):
-        #         if self._has_turn:
-        #             child.onClick(self.attack_tile)
-        #         else:
-        #             child.onClick(lambda _: None)
 
     def render(self, surface):
         if self._refresh_board:
